@@ -7,11 +7,13 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
 const fb = require('fbgraph');
-const PAGE_ACCESS_TOKEN = 'EAAbrXGzPUL0BAMsL3EmHQd1G3RIFtmaCe35e1ZAT7RCdrdUMVxZAdYd92b2loCPO6CXFZC80dPXiWpdQsaItYeloR7lkdl6IxDuVWB0CFZCZCKin8TRZBmQpaMShrO8uklkz7mCeG7Lpb8vDZCSSqMD388sqj4N9HGyY6MovuFWE5YYbbkukhpI6BKUTZA6auabaTS0eEIhARAZDZD';
+const PAGE_ACCESS_TOKEN = 'EAAbrXGzPUL0BAK9KqbK9OiZCxIYzgwfKeZAzlptKh8UQCQ7q5SrSyqDgCsSuj7V0ffbuJVJEZCnE4U4ZAWIS4pHSaExO7Xlc828m6NOu3lBGxGx6R3hZChxQbc3DEe4GrgKRIwK0QnIu53eNQJ9ACPQXh2K60xNF6T6NppTnQqQZDZD';
 const VERIFY_TOKEN='HackDay';
+const keywords=['software', 'trabajo', 'publicaciones', ':D'];
+const posts=[{title:"post 1", url:"plincos.com"},{title:"post 2", url:"plincos.com"},{title:"post 3", url:"plincos.com"}]
 // The rest of the code implements the routes for our Express server.
 let app = express();
-
+ 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
@@ -92,14 +94,13 @@ function receivedMessage(event) {
     // If we receive a text message, check to see if it matches a keyword
     // and send back the template example. Otherwise, just echo the text we received.
     switch (messageText) {
-      case 'generic':
-        sendGenericMessage(senderID);
-        break;
+      
       case 'nlp':
         sendTextMessage(senderID, "duda resuelta");
       break;
       default:
-        sendTextMessage(senderID, messageText);
+        sendTextMessage("See these post about your keyword");
+        sendCarrousel(senderID, posts);
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
@@ -116,18 +117,28 @@ function receivedPostback(event) {
   var payload = event.postback.payload;
   switch(payload){
     case "GET_STARTED_PAYLOAD":
-      
+      sendRules(senderID);
+      //sendTextMessage(senderID, "Please answer the next questions");
     break;
-    case "Joim":
+    case "key":
         sendTextMessage(senderID, "join"); 
     break;
+      case "keywords":
+              sendKeywords(senderID,keywords);
+      break;
+      case "popularpost":
+              sendCarrousel(senderID,posts);
+      break;
+      
+    default:
+            sendCarrousel(senderID,posts);
+     
   }
   console.log("Received postback for user %d and page %d with payload '%s' " + 
     "at %d", senderID, recipientID, payload, timeOfPostback);
 
   // When a postback is called, we'll send a message back to the sender to 
   // let them know it was successful
-  sendTextMessage(senderID, "Postback called");
 }
 
 //////////////////////////
@@ -147,7 +158,11 @@ function sendTextMessage(recipientId, messageText) {
 }
 
 function sendRules(recipientId){
-    let response = {
+    var messageData = {
+        recipient: {
+          id: recipientId
+        },
+        message: {
         attachment: {
             type: "template",
             payload: {
@@ -155,18 +170,35 @@ function sendRules(recipientId){
                 text: "Welcome, please read the rules",
                 buttons: [{
                     type: "web_url",
-                    url:  "http://104.131.69.49:3000/",
+                    url:  "http://www.f8.com",
                     title: "Rules",
                     webview_height_ratio: "compact",
                     messenger_extensions: false
                 }]
             }
         }
-    };
-    callSendAPI(response);
+    }
+}
+    
+    callSendAPI(messageData);
 }
 
-function sendGenericMessage(recipientId) {
+function sendCarrousel(recipientId,posts) {
+    let cards = [];
+    posts.forEach((post) =>{
+        cards.push(
+        {
+            title: post.title,
+            subtitle: post.title,
+            item_url: post.url,               
+            image_url: "http://messengerdemo.parseapp.com/img/rift.png",
+            buttons: [{
+              type: "web_url",
+              url: post.url,
+              title: "Open Web URL"
+             }]
+        });
+    });
   var messageData = {
     recipient: {
       id: recipientId
@@ -176,35 +208,7 @@ function sendGenericMessage(recipientId) {
         type: "template",
         payload: {
           template_type: "generic",
-          elements: [{
-            title: "rift",
-            subtitle: "Next-generation virtual reality",
-            item_url: "https://www.oculus.com/en-us/rift/",               
-            image_url: "http://messengerdemo.parseapp.com/img/rift.png",
-            buttons: [{
-              type: "web_url",
-              url: "https://www.oculus.com/en-us/rift/",
-              title: "Open Web URL"
-            }, {
-              type: "postback",
-              title: "Call Postback",
-              payload: "Payload for first bubble",
-            }],
-          }, {
-            title: "touch",
-            subtitle: "Your Hands, Now in VR",
-            item_url: "https://www.oculus.com/en-us/touch/",               
-            image_url: "http://messengerdemo.parseapp.com/img/touch.png",
-            buttons: [{
-              type: "web_url",
-              url: "https://www.oculus.com/en-us/touch/",
-              title: "Open Web URL"
-            }, {
-              type: "postback",
-              title: "Call Postback",
-              payload: "Payload for second bubble",
-            }]
-          }]
+          elements: cards
         }
       }
     }
@@ -213,6 +217,28 @@ function sendGenericMessage(recipientId) {
   callSendAPI(messageData);
 }
 
+function sendKeywords(recipientId, keywords){
+    let quickreplies = [];
+    keywords.forEach((word) =>{
+        quickreplies.push(
+            {
+                content_type:"text",
+                title:word,
+                payload:"key",
+            }
+        );
+    }); 
+    var messageData = {
+        recipient: {
+          id: recipientId
+        },
+        message: {
+            text: "Check these keywords",
+            quick_replies:quickreplies     
+        }
+    }
+    callSendAPI(messageData);
+}
 function callSendAPI(messageData) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -234,7 +260,7 @@ function callSendAPI(messageData) {
     }
   });  
 }
-
+ 
 // Set Express to listen out for HTTP requests
 var server = app.listen(process.env.PORT || 3000, function () {
   console.log("Listening on port %s", server.address().port);
