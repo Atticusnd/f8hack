@@ -32,6 +32,9 @@ app.get('/', function(req, res) {
   res.send('Hello F8!')
 });
 
+app.get('/rules', (req,res) =>{
+    res.send("<html><body>¡Bienvenid@! Este es un foro para desarrolladores en la Ciudad de México y alrededores que están interesados en desarrollar sobre la plataforma de Facebook y en colaborar con otros desarrolladores con intereses similares. Las herramientas que aquí se discuten incluyen todos los productos listados en: https://developers.facebook.com/products Este grupo no es para hacer preguntas sobre un perfil personal de Facebook, para pedir likes para una aplicación o página, anunciar productos/servicios, subir fotos personales, etc. Ese tipo de entradas podrán ser eliminadas del grupo junto con su autor. Por favor recuerda siempre ser respetuoso y considerado de los otros miembros del grupo. No dudes en participar por medio de posts frescos, de tus comentarios y de tus preguntas. Si vas a hacer una pregunta, recuerda primero buscar dentro del grupo para asegurarte que la pregunta no ha sido respondida en el pasado. Let's connect, share and build! Visita https://developers.facebook.com/ para estar al día con todas las novedades de Facebook, así como acceder a toda la documentación de los productos para desarrolladores. </body></html>");
+} );
 
 app.get('/feed', (req, res) => {
   fb.get("476463749198108/feed",{ access_token: PAGE_ACCESS_TOKEN }, (err, feed) => {
@@ -113,7 +116,7 @@ function receivedPostback(event) {
   var payload = event.postback.payload;
   switch(payload){
     case "GET_STARTED_PAYLOAD":
-      sendTextMessage(senderID, "Bienvenido al bot que ayudará a los desarrolladores");
+      
     break;
     case "Joim":
         sendTextMessage(senderID, "join"); 
@@ -141,6 +144,26 @@ function sendTextMessage(recipientId, messageText) {
   };
 
   callSendAPI(messageData);
+}
+
+function sendRules(recipientId){
+    let response = {
+        attachment: {
+            type: "template",
+            payload: {
+                template_type: "button",
+                text: "Welcome, please read the rules",
+                buttons: [{
+                    type: "web_url",
+                    url:  "http://104.131.69.49:3000/",
+                    title: "Rules",
+                    webview_height_ratio: "compact",
+                    messenger_extensions: false
+                }]
+            }
+        }
+    };
+    callSendAPI(response);
 }
 
 function sendGenericMessage(recipientId) {
