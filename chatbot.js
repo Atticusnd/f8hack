@@ -7,8 +7,8 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
 const fb = require('fbgraph');
-const VERIFY_TOKEN = 'EAAbrXGzPUL0BAMsL3EmHQd1G3RIFtmaCe35e1ZAT7RCdrdUMVxZAdYd92b2loCPO6CXFZC80dPXiWpdQsaItYeloR7lkdl6IxDuVWB0CFZCZCKin8TRZBmQpaMShrO8uklkz7mCeG7Lpb8vDZCSSqMD388sqj4N9HGyY6MovuFWE5YYbbkukhpI6BKUTZA6auabaTS0eEIhARAZDZD';
-const VERIFY_TOKEN=HackDay;
+const PAGE_ACCESS_TOKEN = 'EAAbrXGzPUL0BAMsL3EmHQd1G3RIFtmaCe35e1ZAT7RCdrdUMVxZAdYd92b2loCPO6CXFZC80dPXiWpdQsaItYeloR7lkdl6IxDuVWB0CFZCZCKin8TRZBmQpaMShrO8uklkz7mCeG7Lpb8vDZCSSqMD388sqj4N9HGyY6MovuFWE5YYbbkukhpI6BKUTZA6auabaTS0eEIhARAZDZD';
+const VERIFY_TOKEN='HackDay';
 // The rest of the code implements the routes for our Express server.
 let app = express();
 
@@ -29,7 +29,7 @@ app.get('/webhook', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.send()
+  res.send('Hello F8!')
 });
 
 
@@ -193,7 +193,7 @@ function sendGenericMessage(recipientId) {
 function callSendAPI(messageData) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
+    qs: { access_token: PAGE_ACCESS_TOKEN },
     method: 'POST',
     json: messageData
 
