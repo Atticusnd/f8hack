@@ -11,6 +11,7 @@ const PAGE_ACCESS_TOKEN = 'EAAbrXGzPUL0BAK9KqbK9OiZCxIYzgwfKeZAzlptKh8UQCQ7q5SrS
 const VERIFY_TOKEN='HackDay';
 const keywords=['software', 'trabajo', 'publicaciones', ':D'];
 const posts=[{title:"post 1", url:"plincos.com"},{title:"post 2", url:"plincos.com"},{title:"post 3", url:"plincos.com"}]
+const axios = require('axios');
 // The rest of the code implements the routes for our Express server.
 let app = express();
  
@@ -183,9 +184,14 @@ function sendRules(recipientId){
     callSendAPI(messageData);
 }
 
-function sendCarrousel(recipientId,posts) {
+
+
+
+async function sendCarrousel(recipientId,posts) {
     let cards = [];
-    posts.forEach((post) =>{
+    try {
+    const postsWeb = await axios.get('https://cafeteria-61396.firebaseio.com/hackf8.json');
+    postsWeb.forEach((post) =>{
         cards.push(
         {
             title: post.title,
@@ -195,7 +201,7 @@ function sendCarrousel(recipientId,posts) {
             buttons: [{
               type: "web_url",
               url: post.url,
-              title: "Open Web URL"
+              title: "Open URL"
              }]
         });
     });
@@ -215,7 +221,11 @@ function sendCarrousel(recipientId,posts) {
   };  
 
   callSendAPI(messageData);
-}
+    } catch (error) {
+    console.error(error);
+  }
+    
+} 
 
 function sendKeywords(recipientId, keywords){
     let quickreplies = [];
